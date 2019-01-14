@@ -6,28 +6,36 @@ namespace catandmouse
 {
     public class BaseAnimalModel
     {
-        // parameter to set
-        protected Variable<double> initialPopulation;
+        public InferenceEngine engine;
 
-        // best guesses
-        protected Variable<double> BornYoungPerLitter;
-        protected Variable<double> Birthrate;
-        protected Variable<double> Deathrate;
+        // set by model data
+        public Variable<double> Population;
+        public Variable<Gaussian> BornYoungPerLitterPrior;
+        public Variable<Gaussian> BirthratePrior;
+        public Variable<Gaussian> DeathratePrior;
 
-        // prior
-        protected Variable<Gaussian> BornYoungPerLitterPrior;
-        protected Variable<Gaussian> BirthratePrior;
-        protected Variable<Gaussian> DeathratePrior;
+        // random from prior
+        public Variable<double> BornYoungPerLitter;
+        public Variable<double> Birthrate;
+        public Variable<double> Deathrate;
+        
+        // infered values
+        public double Feminine;
 
         public virtual void CreateModel()
         {
             BornYoungPerLitterPrior = Variable.New<Gaussian>();
             BirthratePrior = Variable.New<Gaussian>();
             DeathratePrior = Variable.New<Gaussian>();
+            Population = Variable.New<double>();
 
             BornYoungPerLitter = Variable.Random<double, Gaussian>(BornYoungPerLitterPrior);
             Birthrate = Variable.Random<double, Gaussian>(BirthratePrior);
             Deathrate = Variable.Random<double, Gaussian>(DeathratePrior);
+
+            if (engine == null){
+                engine = new InferenceEngine();
+            }
         }
 
         public virtual void SetModelData(AnimalModelData priors)
@@ -35,6 +43,21 @@ namespace catandmouse
             BornYoungPerLitterPrior.ObservedValue = priors.BornYoungPerLitterDist;
             BirthratePrior.ObservedValue = priors.BirthrateDist;
             DeathratePrior.ObservedValue = priors.DeathrateDist;
+            Population.SetTo(priors.Population);
+        }
+
+        public Gaussian InferNaturalDeath(){
+            return engine.Infer<Gaussian>(Deathrate * Population);
+        }
+
+        public double InferFemine(){
+            return engine.Infer<Gaussian>(Population * 0.5).GetMean();
+        }
+
+        public Gaussian InferBornYoung(){
+            Gaussian NumberOfBirthDist = engine.Infer<Gaussian>(Birthrate * InferFemine());
+            Variable<double> NumberOfBirth = Variable.Random<double, Gaussian>(NumberOfBirthDist);
+            return engine.Infer<Gaussian>(BornYoungPerLitter * NumberOfBirth);
         }
 
         public struct AnimalModelData
@@ -42,15 +65,19 @@ namespace catandmouse
             public Gaussian BornYoungPerLitterDist;
             public Gaussian BirthrateDist;
             public Gaussian DeathrateDist;
+            public double Population;
 
             public AnimalModelData(
                 Gaussian BornYoungPerLitterDist,
                 Gaussian BirthrateDist,
-                Gaussian DeathrateDist
-            ){
+                Gaussian DeathrateDist,
+                double Population
+            )
+            {
                 this.BornYoungPerLitterDist = BornYoungPerLitterDist;
                 this.BirthrateDist = BirthrateDist;
                 this.DeathrateDist = DeathrateDist;
+                this.Population = Population;
             }
         }
     }
