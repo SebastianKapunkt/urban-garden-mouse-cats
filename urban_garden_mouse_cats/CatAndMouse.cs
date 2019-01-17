@@ -14,16 +14,16 @@ namespace catandmouse
 
         public virtual void CreateModel()
         {
-            Mouse = new BaseAnimalModel();
-            Cat = new CatModel();
-
-            Mouse.CreateModel();
-            Cat.CreateModel();
-
             if (engine == null)
             {
                 engine = new InferenceEngine();
             }
+
+            Mouse = new BaseAnimalModel(engine);
+            Cat = new CatModel(engine);
+
+            Mouse.CreateModel();
+            Cat.CreateModel();
         }
 
         public void SetModelData(
@@ -93,14 +93,16 @@ namespace catandmouse
             return engine.Infer<Gaussian>(Catched + NaturalDeath);
         }
 
-        public Gaussian InferCatPopulationChange(){
+        public Gaussian InferCatPopulationChange()
+        {
             Variable<double> Deceased = Variable.Random<double, Gaussian>(InferDyingCats());
             Variable<double> BornYoung = Variable.Random<double, Gaussian>(Cat.InferBornYoung());
 
             return engine.Infer<Gaussian>(BornYoung - Deceased);
         }
 
-        public Gaussian InferMousePopulationChange(){
+        public Gaussian InferMousePopulationChange()
+        {
             Variable<double> Deceased = Variable.Random<double, Gaussian>(InferDyingMouse());
             Variable<double> BornYoung = Variable.Random<double, Gaussian>(Mouse.InferBornYoung());
 

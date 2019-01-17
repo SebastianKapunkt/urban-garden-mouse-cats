@@ -22,6 +22,10 @@ namespace catandmouse
         // infered values
         public double Feminine;
 
+        public BaseAnimalModel(InferenceEngine engine){
+            this.engine = engine;
+        }
+
         public virtual void CreateModel()
         {
             BornYoungPerLitterPrior = Variable.New<Gaussian>();
@@ -32,10 +36,6 @@ namespace catandmouse
             BornYoungPerLitter = Variable.Random<double, Gaussian>(BornYoungPerLitterPrior);
             Birthrate = Variable.Random<double, Gaussian>(BirthratePrior);
             Deathrate = Variable.Random<double, Gaussian>(DeathratePrior);
-
-            if (engine == null){
-                engine = new InferenceEngine();
-            }
         }
 
         public virtual void SetModelData(AnimalModelData priors)

@@ -13,6 +13,8 @@ namespace catandmouse
         public Variable<Gaussian> CatchratePrior;
         public Variable<Gaussian> FoodNeedsPrior;
 
+        public CatModel(InferenceEngine engine) : base(engine){}
+
         public override void CreateModel()
         {
             base.CreateModel();

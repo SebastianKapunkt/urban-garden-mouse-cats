@@ -23,20 +23,20 @@ namespace catandmouse
                 60
             );
 
-            BaseAnimalModel Mouse = new BaseAnimalModel();
+            BaseAnimalModel Mouse = new BaseAnimalModel(new InferenceEngine());
             Mouse.CreateModel();
             Mouse.SetModelData(MousePriors);
 
             Gaussian BornYoung = Mouse.InferBornYoung();
             Console.WriteLine(
-                "BornYoung Mean: {0:f10}, Standard Deviation: {1:f10}",
+                "Mouse BornYoung Mean: {0:f10}, Standard Deviation: {1:f10}",
                 BornYoung.GetMean(),
                 Math.Sqrt(BornYoung.GetVariance())
             );
 
             Gaussian NaturalDeath = Mouse.InferNaturalDeath();
             Console.WriteLine(
-                "NaturalDeath Mean: {0:f10}, Standard Deviation: {1:f10}",
+                "Mouse NaturalDeath Mean: {0:f10}, Standard Deviation: {1:f10}",
                 NaturalDeath.GetMean(),
                 Math.Sqrt(NaturalDeath.GetVariance())
             );
@@ -55,7 +55,7 @@ namespace catandmouse
                 new Gaussian(3.5, 2.25)
             );
 
-            CatModel Cat = new CatModel();
+            CatModel Cat = new CatModel(new InferenceEngine());
             Cat.CreateModel();
             Cat.SetModelData(CatPriors, CatSpecificPriors);
 
@@ -67,7 +67,7 @@ namespace catandmouse
             );
             Gaussian FoodNeeds = Cat.InferFoodNeeds();
             Console.WriteLine(
-                "FoodNeeds Mouse Mean: {0:f10}, Standard Deviation: {1:f10}",
+                "Cat FoodNeeds Mouse Mean: {0:f10}, Standard Deviation: {1:f10}",
                 FoodNeeds.GetMean(),
                 Math.Sqrt(FoodNeeds.GetVariance())
             );
@@ -85,30 +85,46 @@ namespace catandmouse
                 new Gaussian(5.5, 4),
                 new Gaussian(0.004102103451, 0.00000144),
                 new Gaussian(0.0007305936073, 0.0000000225),
-                1
+                10
             );
             CatModel.CatModelData CatSpecificPriors = new CatModel.CatModelData(
                 new Gaussian(13.5, 30.25),
                 new Gaussian(3.5, 2.25)
             );
-            CatAndMouse Cats = new CatAndMouse();
+            CatAndMouse Model = new CatAndMouse();
 
-            Cats.CreateModel();
-            Cats.SetModelData(
+            Model.CreateModel();
+            Model.SetModelData(
                 MousePriors,
                 CatPriors,
                 CatSpecificPriors
             );
 
-            Gaussian CatchedMouse = Cats.InferCatchedMouse();
-            Gaussian StarvingCats = Cats.InferStarvingCats();
-            Gaussian DyingCats = Cats.InferDyingCats();
-            Gaussian DyingMouse = Cats.InferDyingMouse();
-            Gaussian CatPopulationChange = Cats.InferCatPopulationChange();
-            Gaussian MousePopulationChange = Cats.InferMousePopulationChange();
-            CatAndMouse.CatAndMousePopulation NewPopulation = Cats.InferPopulation();
+            Gaussian BornYoung = Model.Mouse.InferBornYoung();
+            Gaussian NaturalDeath = Model.Mouse.InferNaturalDeath();
+            Gaussian CatchedMouse = Model.InferCatchedMouse();
+            Gaussian StarvingCats = Model.InferStarvingCats();
+            Gaussian DyingCats = Model.InferDyingCats();
+            Gaussian DyingMouse = Model.InferDyingMouse();
+            Gaussian CatPopulationChange = Model.InferCatPopulationChange();
+            Gaussian MousePopulationChange = Model.InferMousePopulationChange();
+            CatAndMouse.CatAndMousePopulation NewPopulation = Model.InferPopulation();
             
-            
+            Console.WriteLine(
+                "initial Mouse Population: {0:f2}, initial Cat Population: {1:f2}",
+                Model.engine.Infer<Gaussian>(Model.Mouse.Population).GetMean(),
+                Model.engine.Infer<Gaussian>(Model.Cat.Population).GetMean()
+            );
+            Console.WriteLine(
+                "Mouse NaturalDeath Mean: {0:f10}, Standard Deviation: {1:f10}",
+                NaturalDeath.GetMean(),
+                Math.Sqrt(NaturalDeath.GetVariance())
+            );
+            Console.WriteLine(
+                "Mouse BornYoung Mean: {0:f10}, Standard Deviation: {1:f10}",
+                BornYoung.GetMean(),
+                Math.Sqrt(BornYoung.GetVariance())
+            );
             Console.WriteLine(
                 "CatchedMouse Mean: {0:f2}, Standard Deviation: {1:f2}",
                 CatchedMouse.GetMean(),
