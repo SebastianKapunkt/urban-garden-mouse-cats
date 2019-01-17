@@ -10,8 +10,8 @@ namespace catandmouse
         {
             // Cat();
             // Mouse();
-            CatsAndMice();
-            
+            //CatsAndMice();
+            ContiniousView();
         }
 
         public static void Mouse()
@@ -109,7 +109,7 @@ namespace catandmouse
             Gaussian CatPopulationChange = Model.InferCatPopulationChange();
             Gaussian MousePopulationChange = Model.InferMousePopulationChange();
             CatAndMouse.CatAndMousePopulation NewPopulation = Model.InferPopulation();
-            
+
             Console.WriteLine(
                 "initial Mouse Population: {0:f2}, initial Cat Population: {1:f2}",
                 Model.engine.Infer<Gaussian>(Model.Mouse.Population).GetMean(),
@@ -165,6 +165,54 @@ namespace catandmouse
                 NewPopulation.MousePopulation.GetMean(),
                 Math.Sqrt(NewPopulation.MousePopulation.GetVariance())
             );
+        }
+
+        public static void ContiniousView()
+        {
+            Variable<double> initalMousePopulation = 3000;
+            Variable<double> initialCatPopulation = 10;
+
+            BaseAnimalModel.AnimalModelData MousePriors = new BaseAnimalModel.AnimalModelData(
+                new Gaussian(5.5, 2.22),
+                new Gaussian(0.0195, 0.000004),
+                new Gaussian(0.001141552511, 0.0000000225),
+                initalMousePopulation
+            );
+            BaseAnimalModel.AnimalModelData CatPriors = new BaseAnimalModel.AnimalModelData(
+                new Gaussian(5.5, 4),
+                new Gaussian(0.004102103451, 0.00000144),
+                new Gaussian(0.0007305936073, 0.0000000225),
+                initialCatPopulation
+            );
+            CatModel.CatModelData CatSpecificPriors = new CatModel.CatModelData(
+                new Gaussian(13.5, 30.25),
+                new Gaussian(3.5, 2.25)
+            );
+            CatAndMouse Model = new CatAndMouse();
+
+            Model.CreateModel();
+            Model.SetModelData(
+                MousePriors,
+                CatPriors,
+                CatSpecificPriors
+            );
+
+            for (int i = 0; i < 10; i++)
+            {
+                CatAndMouse.CatAndMousePopulation NewPopulation = Model.InferPopulation();
+                Console.WriteLine(
+                    "New CatPopulation Mean: {0:f2}, Standard Deviation: {1:f2}",
+                    NewPopulation.CatPopulation.GetMean(),
+                    Math.Sqrt(NewPopulation.CatPopulation.GetVariance())
+                );
+                Console.WriteLine(
+                    "New MousePopulation Mean: {0:f2}, Standard Deviation: {1:f2}",
+                    NewPopulation.MousePopulation.GetMean(),
+                    Math.Sqrt(NewPopulation.MousePopulation.GetVariance())
+                );
+                Model.Cat.Population = Variable.Random<double, Gaussian>(NewPopulation.CatPopulation);
+                Model.Mouse.Population = Variable.Random<double, Gaussian>(NewPopulation.MousePopulation);
+            }
         }
     }
 }

@@ -65,13 +65,13 @@ namespace catandmouse
             public Gaussian BornYoungPerLitterDist;
             public Gaussian BirthrateDist;
             public Gaussian DeathrateDist;
-            public double Population;
+            public Variable<double> Population;
 
             public AnimalModelData(
                 Gaussian BornYoungPerLitterDist,
                 Gaussian BirthrateDist,
                 Gaussian DeathrateDist,
-                double Population
+                Variable<double> Population
             )
             {
                 this.BornYoungPerLitterDist = BornYoungPerLitterDist;
