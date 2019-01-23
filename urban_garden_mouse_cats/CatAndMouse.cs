@@ -29,11 +29,11 @@ namespace catandmouse
         public void SetModelData(
             BaseAnimalModel.AnimalModelData MousePriors,
             BaseAnimalModel.AnimalModelData CatPriors,
-            CatModel.CatModelData CatSpecificPriors
+            Gaussian CatchrateDist
         )
         {
             Mouse.SetModelData(MousePriors);
-            Cat.SetModelData(CatPriors, CatSpecificPriors);
+            Cat.SetModelData(CatPriors, CatchrateDist);
         }
 
         public Gaussian InferCatchedMouse()
@@ -56,35 +56,6 @@ namespace catandmouse
             return engine.Infer<Gaussian>(CatchedMouse);
         }
 
-        public Gaussian InferStarvingCats()
-        {
-            Variable<double> StarvingCats = Variable.New<double>();
-
-            Variable<double> FoodNeeds = Variable.Random<double, Gaussian>(Cat.InferFoodNeeds());
-            Variable<double> CatchedMouse = Variable.Random<double, Gaussian>(InferCatchedMouse());
-            Variable<bool> condition = FoodNeeds > CatchedMouse;
-            Variable<double> FoodNeedDifference = Variable.Random<double, Gaussian>(engine.Infer<Gaussian>(FoodNeeds - CatchedMouse));
-            Variable<double> starving = FoodNeedDifference / FoodNeeds;
-            using (Variable.If(condition))
-            {
-                StarvingCats.SetTo(starving);
-            }
-            using (Variable.IfNot(condition))
-            {
-                StarvingCats.SetTo(0);
-            }
-
-            return engine.Infer<Gaussian>(StarvingCats);
-        }
-
-        public Gaussian InferDyingCats()
-        {
-            Variable<double> Starving = Variable.Random<double, Gaussian>(InferStarvingCats());
-            Variable<double> NaturalDeath = Variable.Random<double, Gaussian>(Cat.InferNaturalDeath());
-
-            return engine.Infer<Gaussian>(Starving + NaturalDeath);
-        }
-
         public Gaussian InferDyingMouse()
         {
             Variable<double> Catched = Variable.Random<double, Gaussian>(InferCatchedMouse());
@@ -95,7 +66,7 @@ namespace catandmouse
 
         public Gaussian InferCatPopulationChange()
         {
-            Variable<double> Deceased = Variable.Random<double, Gaussian>(InferDyingCats());
+            Variable<double> Deceased = Variable.Random<double, Gaussian>(Cat.InferNaturalDeath());
             Variable<double> BornYoung = Variable.Random<double, Gaussian>(Cat.InferBornYoung());
 
             return engine.Infer<Gaussian>(BornYoung - Deceased);

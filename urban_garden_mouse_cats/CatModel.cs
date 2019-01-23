@@ -20,39 +20,19 @@ namespace catandmouse
             base.CreateModel();
 
             CatchratePrior = Variable.New<Gaussian>();
-            FoodNeedsPrior = Variable.New<Gaussian>();
-
+            
             Catchrate = Variable.Random<double, Gaussian>(CatchratePrior);
-            FoodNeeds = Variable.Random<double, Gaussian>(FoodNeedsPrior);
         }
 
-        public void SetModelData(AnimalModelData Priors, CatModelData CatPriors)
+        public void SetModelData(AnimalModelData Priors, Gaussian CatchrateDist)
         {
             base.SetModelData(Priors);
-            this.CatchratePrior.ObservedValue = CatPriors.CatchrateDist;
-            this.FoodNeedsPrior.ObservedValue = CatPriors.FoodNeeds;
+            this.CatchratePrior.ObservedValue = CatchrateDist;
         }
 
         public Gaussian InferCatchableMouse()
         {
             return engine.Infer<Gaussian>(Catchrate * Population);
-        }
-
-        public Gaussian InferFoodNeeds()
-        {
-            return engine.Infer<Gaussian>(FoodNeeds * Population);
-        }
-
-        public struct CatModelData
-        {
-            public Gaussian CatchrateDist;
-            public Gaussian FoodNeeds;
-
-            public CatModelData(Gaussian CatchrateDist, Gaussian FoodNeeds)
-            {
-                this.CatchrateDist = CatchrateDist;
-                this.FoodNeeds = FoodNeeds;
-            }
         }
     }
 }

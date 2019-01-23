@@ -8,19 +8,14 @@ namespace catandmouse
     {
         public InferenceEngine engine;
 
-        // set by model data
         public Variable<double> Population;
         public Variable<Gaussian> BornYoungPerLitterPrior;
         public Variable<Gaussian> BirthratePrior;
         public Variable<Gaussian> DeathratePrior;
 
-        // random from prior
         public Variable<double> BornYoungPerLitter;
         public Variable<double> Birthrate;
         public Variable<double> Deathrate;
-        
-        // infered values
-        public double Feminine;
 
         public BaseAnimalModel(InferenceEngine engine){
             this.engine = engine;
