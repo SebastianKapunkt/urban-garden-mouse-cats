@@ -13,14 +13,12 @@ namespace catandmouse
         public Variable<Gaussian> CatchratePrior;
         public Variable<Gaussian> FoodNeedsPrior;
 
-        public CatModel(InferenceEngine engine) : base(engine){}
-
         public override void CreateModel()
         {
             base.CreateModel();
 
             CatchratePrior = Variable.New<Gaussian>();
-            
+
             Catchrate = Variable.Random<double, Gaussian>(CatchratePrior);
         }
 
@@ -30,9 +28,9 @@ namespace catandmouse
             this.CatchratePrior.ObservedValue = CatchrateDist;
         }
 
-        public Gaussian InferCatchableMouse()
+        public Variable<double> GetCatchableMouse()
         {
-            return engine.Infer<Gaussian>(Catchrate * Population);
+            return Catchrate * Population;
         }
     }
 }

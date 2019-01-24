@@ -6,8 +6,6 @@ namespace catandmouse
 {
     public class BaseAnimalModel
     {
-        public InferenceEngine engine;
-
         public Variable<double> Population;
         public Variable<Gaussian> BornYoungPerLitterPrior;
         public Variable<Gaussian> BirthratePrior;
@@ -16,10 +14,6 @@ namespace catandmouse
         public Variable<double> BornYoungPerLitter;
         public Variable<double> Birthrate;
         public Variable<double> Deathrate;
-
-        public BaseAnimalModel(InferenceEngine engine){
-            this.engine = engine;
-        }
 
         public virtual void CreateModel()
         {
@@ -38,25 +32,22 @@ namespace catandmouse
             BornYoungPerLitterPrior.ObservedValue = priors.BornYoungPerLitterDist;
             BirthratePrior.ObservedValue = priors.BirthrateDist;
             DeathratePrior.ObservedValue = priors.DeathrateDist;
-            Population.ObservedValue = priors.Population;
         }
 
         public void SetNewPopulation(double NewPopulation){
             Population.ObservedValue = NewPopulation;
         }
 
-        public Gaussian InferNaturalDeath(){
-            return engine.Infer<Gaussian>(Deathrate * Population);
+        public Variable<double> GetNaturalDeath(){
+            return Deathrate * Population;
         }
 
-        public double InferFemine(){
-            return engine.Infer<Gaussian>(Population * 0.5).GetMean();
+        public Variable<double> GetFemine(){
+            return Population * 0.5;
         }
 
-        public Gaussian InferBornYoung(){
-            Gaussian NumberOfBirthDist = engine.Infer<Gaussian>(Birthrate * InferFemine());
-            Variable<double> NumberOfBirth = Variable.Random<double, Gaussian>(NumberOfBirthDist);
-            return engine.Infer<Gaussian>(BornYoungPerLitter * NumberOfBirth);
+        public Variable<double> GetBornYoung(){
+            return BornYoungPerLitter * Birthrate * GetFemine();
         }
 
         public struct AnimalModelData
@@ -64,19 +55,16 @@ namespace catandmouse
             public Gaussian BornYoungPerLitterDist;
             public Gaussian BirthrateDist;
             public Gaussian DeathrateDist;
-            public double Population;
 
             public AnimalModelData(
                 Gaussian BornYoungPerLitterDist,
                 Gaussian BirthrateDist,
-                Gaussian DeathrateDist,
-                double Population
+                Gaussian DeathrateDist
             )
             {
                 this.BornYoungPerLitterDist = BornYoungPerLitterDist;
                 this.BirthrateDist = BirthrateDist;
                 this.DeathrateDist = DeathrateDist;
-                this.Population = Population;
             }
         }
     }

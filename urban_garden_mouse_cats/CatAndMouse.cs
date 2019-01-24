@@ -1,7 +1,6 @@
 using System;
 using Microsoft.ML.Probabilistic.Models;
 using Microsoft.ML.Probabilistic.Distributions;
-using Microsoft.ML.Probabilistic.Factors;
 
 namespace catandmouse
 {
@@ -14,13 +13,8 @@ namespace catandmouse
 
         public virtual void CreateModel()
         {
-            if (engine == null)
-            {
-                engine = new InferenceEngine();
-            }
-
-            Mouse = new BaseAnimalModel(engine);
-            Cat = new CatModel(engine);
+            Mouse = new BaseAnimalModel();
+            Cat = new CatModel();
 
             Mouse.CreateModel();
             Cat.CreateModel();
@@ -36,11 +30,11 @@ namespace catandmouse
             Cat.SetModelData(CatPriors, CatchrateDist);
         }
 
-        public Gaussian InferCatchedMouse()
+        public Variable<double> GetCatchedMouse()
         {
             Variable<double> CatchedMouse = Variable.New<double>();
 
-            Variable<double> CatchableMouse = Variable.Random<double, Gaussian>(Cat.InferCatchableMouse());
+            Variable<double> CatchableMouse = Cat.GetCatchableMouse();
             Variable<double> MousePopulation = Mouse.Population;
 
             Variable<bool> condition = CatchableMouse > MousePopulation;
@@ -53,61 +47,22 @@ namespace catandmouse
                 CatchedMouse.SetTo(CatchableMouse);
             }
 
-            return engine.Infer<Gaussian>(CatchedMouse);
+            return CatchedMouse;
         }
 
-        public Gaussian InferDyingMouse()
+        public Variable<double> GetDyingMouse()
         {
-            Variable<double> Catched = Variable.Random<double, Gaussian>(InferCatchedMouse());
-            Variable<double> NaturalDeath = Variable.Random<double, Gaussian>(Mouse.InferNaturalDeath());
-
-            return engine.Infer<Gaussian>(Catched + NaturalDeath);
+            return GetCatchedMouse() + Mouse.GetNaturalDeath();
         }
 
-        public Gaussian InferCatPopulationChange()
+        public Variable<double> GetCatPopulationChange()
         {
-            Variable<double> Deceased = Variable.Random<double, Gaussian>(Cat.InferNaturalDeath());
-            Variable<double> BornYoung = Variable.Random<double, Gaussian>(Cat.InferBornYoung());
-
-            return engine.Infer<Gaussian>(BornYoung - Deceased);
+            return Cat.GetBornYoung() - Cat.GetNaturalDeath();
         }
 
-        public Gaussian InferMousePopulationChange()
+        public Variable<double> GetMousePopulationChange()
         {
-            Variable<double> Deceased = Variable.Random<double, Gaussian>(InferDyingMouse());
-            Variable<double> BornYoung = Variable.Random<double, Gaussian>(Mouse.InferBornYoung());
-
-            return engine.Infer<Gaussian>(BornYoung - Deceased);
-        }
-
-        public CatAndMousePopulation InferPopulation()
-        {
-            Variable<double> CatPopulationChange = Variable.Random<double, Gaussian>(InferCatPopulationChange());
-            Variable<double> MousePopulationChange = Variable.Random<double, Gaussian>(InferMousePopulationChange());
-            Variable<double> CatPopulation = Cat.Population;
-            Variable<double> MousePopulation = Mouse.Population;
-
-            Gaussian NewCatPopulation = engine.Infer<Gaussian>(CatPopulation + CatPopulationChange);
-            Gaussian NewMousePopulation = engine.Infer<Gaussian>(MousePopulation + MousePopulationChange);
-
-            CatAndMousePopulation CatAndMouse = new CatAndMousePopulation(
-                NewCatPopulation,
-                NewMousePopulation
-            );
-
-            return CatAndMouse;
-        }
-
-        public struct CatAndMousePopulation
-        {
-            public Gaussian CatPopulation;
-            public Gaussian MousePopulation;
-
-            public CatAndMousePopulation(Gaussian Cats, Gaussian Mice)
-            {
-                this.CatPopulation = Cats;
-                this.MousePopulation = Mice;
-            }
+            return Mouse.GetBornYoung() - GetDyingMouse();
         }
     }
 }
