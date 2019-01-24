@@ -64,5 +64,32 @@ namespace catandmouse
         {
             return Mouse.GetBornYoung() - GetDyingMouse();
         }
+
+        public VariableArray2D<double> GetPopulationForIteration(int Iterations, double CatPopulation, double MousePopulation)
+        {
+            Variable<int> numTimes = Variable.Observed(Iterations);
+            Range time = new Range(numTimes);
+            Range cols = new Range(2); // frist is Cats and second Mice
+
+            VariableArray2D<double> days = Variable.Array<double>(time, cols);
+
+            using (ForEachBlock rowBlock = Variable.ForEach(time)) {
+                var day = rowBlock.Index;
+                using (Variable.If(day == 0))
+                {
+                    Cat.Population.ObservedValue = CatPopulation;
+                    Mouse.Population.ObservedValue = MousePopulation;
+                    days[day, 0] = Cat.Population;
+                    days[day, 1] = Mouse.Population;
+                }
+                using (Variable.If(day > 0))
+                {
+                    days[day, 0] = days[day - 1, 0] + GetCatPopulationChange();
+                    days[day, 1] = days[day - 1, 1] + GetMousePopulationChange();
+                }
+            }
+
+            return days;
+        }
     }
 }

@@ -153,15 +153,12 @@ namespace catandmouse
 
         public static void ContiniousView()
         {
-            double CurrentCatPopulation = 5;
-            double CurrentMousePopulation = 1300;
-            int iterations = 1000;
+            double InitialCatPopilation = 5;
+            double InitialMousePopulation = 1300;
+            int Iterations = 20;
 
-            List<double> CatPopulation = new List<double>();
-            List<double> CatPopulationStandardDeviation = new List<double>();
-
-            List<double> MousePopulation = new List<double>();
-            List<double> MousePopulationStandardDeviation = new List<double>();
+            InferenceEngine engine = new InferenceEngine();
+            engine.Algorithm = new ExpectationPropagation();
 
             BaseAnimalModel.AnimalModelData MousePriors = new BaseAnimalModel.AnimalModelData(
                     new Gaussian(5.5, 2.22),
@@ -175,9 +172,6 @@ namespace catandmouse
             );
             Gaussian Catchrate = new Gaussian(13.5, 30.25);
 
-            InferenceEngine engine = new InferenceEngine();
-            engine.Algorithm = new ExpectationPropagation();
-
             CatAndMouse Model = new CatAndMouse();
 
             Model.CreateModel();
@@ -186,44 +180,10 @@ namespace catandmouse
                 CatPriors,
                 Catchrate
             );
-            Model.Cat.SetNewPopulation(CurrentCatPopulation);
-            Model.Mouse.SetNewPopulation(CurrentMousePopulation);
-            Variable<double> ruleCat = Model.GetCatPopulationChange();
-            Variable<double> ruleMouse = Model.GetMousePopulationChange();
 
-            for (int i = 0; i < iterations; i++)
-            {
-                Gaussian CatPopulationChange = engine.Infer<Gaussian>(ruleCat);
-                Gaussian MousePopulationChange = engine.Infer<Gaussian>(ruleMouse);
-
-                CurrentCatPopulation = CurrentCatPopulation + CatPopulationChange.GetMean();
-                CurrentMousePopulation = CurrentMousePopulation + MousePopulationChange.GetMean();
-
-                CatPopulation.Add(CurrentCatPopulation);
-                CatPopulationStandardDeviation.Add(Math.Sqrt(CatPopulationChange.GetVariance()));
-
-                MousePopulation.Add(CurrentMousePopulation);
-                MousePopulationStandardDeviation.Add(Math.Sqrt(MousePopulationChange.GetVariance()));
-
-                Model.Cat.SetNewPopulation(CurrentCatPopulation);
-                Model.Mouse.SetNewPopulation(CurrentMousePopulation);
-            }
-
-            for (int i = 0; i < iterations; i++)
-            {
-                Console.WriteLine(
-                    "{0:d2} CatPopulation Mean: {1:f2}, Standard Deviation: {2:f2}",
-                    i,
-                    CatPopulation[i],
-                    CatPopulationStandardDeviation[i]
-                );
-                Console.WriteLine(
-                    "{0:d2} MousePopulation Mean: {1:f2}, Standard Deviation: {2:f2}",
-                    i,
-                    MousePopulation[i],
-                    MousePopulationStandardDeviation[i]
-                );
-            }
+            Console.WriteLine(
+                engine.Infer(Model.GetPopulationForIteration(Iterations, InitialCatPopilation, InitialMousePopulation))
+            );
         }
     }
 }
