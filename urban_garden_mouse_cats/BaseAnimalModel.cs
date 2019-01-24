@@ -38,7 +38,11 @@ namespace catandmouse
             BornYoungPerLitterPrior.ObservedValue = priors.BornYoungPerLitterDist;
             BirthratePrior.ObservedValue = priors.BirthrateDist;
             DeathratePrior.ObservedValue = priors.DeathrateDist;
-            Population.SetTo(priors.Population);
+            Population.ObservedValue = priors.Population;
+        }
+
+        public void SetNewPopulation(double NewPopulation){
+            Population.ObservedValue = NewPopulation;
         }
 
         public Gaussian InferNaturalDeath(){
@@ -60,13 +64,13 @@ namespace catandmouse
             public Gaussian BornYoungPerLitterDist;
             public Gaussian BirthrateDist;
             public Gaussian DeathrateDist;
-            public Variable<double> Population;
+            public double Population;
 
             public AnimalModelData(
                 Gaussian BornYoungPerLitterDist,
                 Gaussian BirthrateDist,
                 Gaussian DeathrateDist,
-                Variable<double> Population
+                double Population
             )
             {
                 this.BornYoungPerLitterDist = BornYoungPerLitterDist;

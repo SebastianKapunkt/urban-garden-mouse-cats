@@ -147,8 +147,9 @@ namespace catandmouse
 
         public static void ContiniousView()
         {
-            double LatestCatPopulation = 5;
-            double LatestMousePopulation = 500;
+            double InitialCatPopulation = 5;
+            double InitialMousePopulation = 1300;
+            int iterations = 10;
 
             List<double> CatPopulation = new List<double>();
             List<double> CatPopulationStandardDeviation = new List<double>();
@@ -156,44 +157,46 @@ namespace catandmouse
             List<double> MousePopulation = new List<double>();
             List<double> MousePopulationStandardDeviation = new List<double>();
 
-            for (int i = 0; i < 20; i++)
-            {
-                Variable<double> CurrentCatPopulation = LatestCatPopulation;
-                Variable<double> CurrentMousePopulation = LatestMousePopulation;
-                BaseAnimalModel.AnimalModelData MousePriors = new BaseAnimalModel.AnimalModelData(
+            BaseAnimalModel.AnimalModelData MousePriors = new BaseAnimalModel.AnimalModelData(
                     new Gaussian(5.5, 2.22),
                     new Gaussian(0.0195, 0.000004),
                     new Gaussian(0.001141552511, 0.0000000225),
-                    CurrentMousePopulation
+                    InitialCatPopulation
                 );
-                BaseAnimalModel.AnimalModelData CatPriors = new BaseAnimalModel.AnimalModelData(
-                    new Gaussian(5.5, 4),
-                    new Gaussian(0.004102103451, 0.00000144),
-                    new Gaussian(0.0007305936073, 0.0000000225),
-                    CurrentCatPopulation
-                );
-                Gaussian Catchrate = new Gaussian(13.5, 30.25);
-                CatAndMouse Model = new CatAndMouse();
+            BaseAnimalModel.AnimalModelData CatPriors = new BaseAnimalModel.AnimalModelData(
+                new Gaussian(5.5, 4),
+                new Gaussian(0.004102103451, 0.00000144),
+                new Gaussian(0.0007305936073, 0.0000000225),
+                InitialMousePopulation
+            );
+            Gaussian Catchrate = new Gaussian(13.5, 30.25);
+            CatAndMouse Model = new CatAndMouse();
 
-                Model.CreateModel();
-                Model.SetModelData(
-                    MousePriors,
-                    CatPriors,
-                    Catchrate
-                );
+            Model.CreateModel();
+            Model.SetModelData(
+                MousePriors,
+                CatPriors,
+                Catchrate
+            );
 
+            for (int i = 0; i < iterations; i++)
+            {
                 CatAndMouse.CatAndMousePopulation NewPopulation = Model.InferPopulation();
 
-                LatestCatPopulation = NewPopulation.CatPopulation.GetMean();
-                LatestMousePopulation = NewPopulation.MousePopulation.GetMean();
+                double NewCatPopulation = NewPopulation.CatPopulation.GetMean();
+                double NewMousePopulation = NewPopulation.MousePopulation.GetMean();
 
-                CatPopulation.Add(LatestCatPopulation);
+                CatPopulation.Add(NewCatPopulation);
                 CatPopulationStandardDeviation.Add(Math.Sqrt(NewPopulation.CatPopulation.GetVariance()));
-                MousePopulation.Add(LatestMousePopulation);
+
+                MousePopulation.Add(NewMousePopulation);
                 MousePopulationStandardDeviation.Add(Math.Sqrt(NewPopulation.MousePopulation.GetVariance()));
+
+                Model.Cat.SetNewPopulation(NewCatPopulation);
+                Model.Mouse.SetNewPopulation(NewMousePopulation);
             }
 
-            for (int i = 0; i < 20; i++)
+            for (int i = 0; i < iterations; i++)
             {
                 Console.WriteLine(
                     "{0:d2} CatPopulation Mean: {1:f2}, Standard Deviation: {2:f2}",
