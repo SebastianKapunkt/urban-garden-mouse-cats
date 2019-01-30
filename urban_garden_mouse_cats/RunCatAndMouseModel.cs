@@ -32,7 +32,7 @@ namespace catandmouse
             Mouse.SetModelData(MousePriors);
             Mouse.SetNewPopulation(100);
 
-            Gaussian BornYoung = engine.Infer<Gaussian>(Mouse.GetBornYoung());
+            Gaussian BornYoung = engine.Infer<Gaussian>(Mouse.GetBornYoung(0.5));
             Console.WriteLine(
                 "Mouse BornYoung Mean: {0:f10}, Standard Deviation: {1:f10}",
                 BornYoung.GetMean(),
@@ -97,9 +97,9 @@ namespace catandmouse
             Model.Cat.SetNewPopulation(5);
             Model.Mouse.SetNewPopulation(1000);
 
-            Gaussian MouseBornYoung = engine.Infer<Gaussian>(Model.Mouse.GetBornYoung());
+            Gaussian MouseBornYoung = engine.Infer<Gaussian>(Model.Mouse.GetBornYoung(0.5));
             Gaussian MouseNaturalDeath = engine.Infer<Gaussian>(Model.Mouse.GetNaturalDeath());
-            Gaussian CatBornYoung = engine.Infer<Gaussian>(Model.Cat.GetBornYoung());
+            Gaussian CatBornYoung = engine.Infer<Gaussian>(Model.Cat.GetBornYoung(0.5));
             Gaussian CatNaturalDeath = engine.Infer<Gaussian>(Model.Cat.GetNaturalDeath());
             Gaussian CatchedMouse = engine.Infer<Gaussian>(Model.GetCatchedMouse());
             Gaussian DyingMouse = engine.Infer<Gaussian>(Model.GetDyingMouse());

@@ -56,12 +56,12 @@ namespace catandmouse
 
         public Variable<double> GetCatPopulationChange()
         {
-            return Cat.GetBornYoung() - Cat.GetNaturalDeath();
+            return Cat.GetBornYoung(0.5) - Cat.GetNaturalDeath();
         }
 
         public Variable<double> GetMousePopulationChange()
         {
-            return Mouse.GetBornYoung() - GetDyingMouse();
+            return Mouse.GetBornYoung(0.4) - GetDyingMouse();
         }
 
         public VariableArray2D<double> GetPopulationForIteration(int Iterations, double CatPopulation, double MousePopulation)

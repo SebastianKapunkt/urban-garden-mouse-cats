@@ -49,14 +49,14 @@ namespace catandmouse
             return Deathrate * Population;
         }
 
-        public Variable<double> GetFemine()
+        public Variable<double> GetFemine(double ratio)
         {
-            return Population * 0.5;
+            return Population * ratio;
         }
 
-        public Variable<double> GetBornYoung()
+        public Variable<double> GetBornYoung(double ratio)
         {
-            return BornYoungPerLitter * Birthrate * GetFemine();
+            return BornYoungPerLitter * Birthrate * GetFemine(ratio);
         }
 
         public struct AnimalModelData
