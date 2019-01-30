@@ -73,6 +73,8 @@ namespace catandmouse
 
         public static void CatsAndMice()
         {
+            InferenceEngine engine = new InferenceEngine();
+
             BaseAnimalModel.AnimalModelData MousePriors = new BaseAnimalModel.AnimalModelData(
                 new Gaussian(5.5, 2.22),
                 new Gaussian(0.0195, 0.000004),
@@ -92,22 +94,22 @@ namespace catandmouse
                 CatPriors,
                 Catchrate
             );
-            Model.Cat.SetNewPopulation(10);
-            Model.Mouse.SetNewPopulation(100);
+            Model.Cat.SetNewPopulation(5);
+            Model.Mouse.SetNewPopulation(1000);
 
-            Gaussian MouseBornYoung = Model.engine.Infer<Gaussian>(Model.Mouse.GetBornYoung());
-            Gaussian MouseNaturalDeath = Model.engine.Infer<Gaussian>(Model.Mouse.GetNaturalDeath());
-            Gaussian CatBornYoung = Model.engine.Infer<Gaussian>(Model.Cat.GetBornYoung());
-            Gaussian CatNaturalDeath = Model.engine.Infer<Gaussian>(Model.Cat.GetNaturalDeath());
-            Gaussian CatchedMouse = Model.engine.Infer<Gaussian>(Model.GetCatchedMouse());
-            Gaussian DyingMouse = Model.engine.Infer<Gaussian>(Model.GetDyingMouse());
-            Gaussian CatPopulationChange = Model.engine.Infer<Gaussian>(Model.GetCatPopulationChange());
-            Gaussian MousePopulationChange = Model.engine.Infer<Gaussian>(Model.GetMousePopulationChange());
+            Gaussian MouseBornYoung = engine.Infer<Gaussian>(Model.Mouse.GetBornYoung());
+            Gaussian MouseNaturalDeath = engine.Infer<Gaussian>(Model.Mouse.GetNaturalDeath());
+            Gaussian CatBornYoung = engine.Infer<Gaussian>(Model.Cat.GetBornYoung());
+            Gaussian CatNaturalDeath = engine.Infer<Gaussian>(Model.Cat.GetNaturalDeath());
+            Gaussian CatchedMouse = engine.Infer<Gaussian>(Model.GetCatchedMouse());
+            Gaussian DyingMouse = engine.Infer<Gaussian>(Model.GetDyingMouse());
+            Gaussian CatPopulationChange = engine.Infer<Gaussian>(Model.GetCatPopulationChange());
+            Gaussian MousePopulationChange = engine.Infer<Gaussian>(Model.GetMousePopulationChange());
 
             Console.WriteLine(
                 "initial Mouse Population: {0:f2}, initial Cat Population: {1:f2}",
-                Model.engine.Infer<Gaussian>(Model.Mouse.Population).GetMean(),
-                Model.engine.Infer<Gaussian>(Model.Cat.Population).GetMean()
+                engine.Infer<Gaussian>(Model.Mouse.Population).GetMean(),
+                engine.Infer<Gaussian>(Model.Cat.Population).GetMean()
             );
             Console.WriteLine(
                 "Mouse NaturalDeath Mean: {0:f10}, Standard Deviation: {1:f10}",
@@ -153,12 +155,11 @@ namespace catandmouse
 
         public static void ContiniousView()
         {
-            double InitialCatPopilation = 5;
-            double InitialMousePopulation = 1300;
-            int Iterations = 20;
+            double InitialCatPopilation = 0;
+            double InitialMousePopulation = 2000;
+            int Iterations = 365;
 
             InferenceEngine engine = new InferenceEngine();
-            engine.Algorithm = new ExpectationPropagation();
 
             BaseAnimalModel.AnimalModelData MousePriors = new BaseAnimalModel.AnimalModelData(
                     new Gaussian(5.5, 2.22),

@@ -9,7 +9,6 @@ namespace catandmouse
     {
         public BaseAnimalModel Mouse;
         public CatModel Cat;
-        public InferenceEngine engine;
 
         public virtual void CreateModel()
         {
