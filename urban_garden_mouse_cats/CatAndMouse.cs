@@ -34,12 +34,12 @@ namespace catandmouse
             Variable<double> CatchedMouse = Variable.New<double>();
 
             Variable<double> CatchableMouse = Cat.GetCatchableMouse();
-            Variable<double> MousePopulation = Mouse.Population;
+            Variable<double> MousePopulation = Mouse.GetPopulation();
 
             Variable<bool> condition = CatchableMouse > MousePopulation;
             using (Variable.If(condition))
             {
-                CatchedMouse.SetTo(Mouse.Population);
+                CatchedMouse.SetTo(Mouse.GetPopulation());
             }
             using (Variable.IfNot(condition))
             {
@@ -72,14 +72,15 @@ namespace catandmouse
 
             VariableArray2D<double> days = Variable.Array<double>(time, cols);
 
-            using (ForEachBlock rowBlock = Variable.ForEach(time)) {
+            using (ForEachBlock rowBlock = Variable.ForEach(time))
+            {
                 var day = rowBlock.Index;
                 using (Variable.If(day == 0))
                 {
-                    Cat.Population.ObservedValue = CatPopulation;
-                    Mouse.Population.ObservedValue = MousePopulation;
-                    days[day, 0] = Cat.Population;
-                    days[day, 1] = Mouse.Population;
+                    Cat.SetNewPopulation(CatPopulation);
+                    Mouse.SetNewPopulation(MousePopulation);
+                    days[day, 0] = Cat.GetPopulation();
+                    days[day, 1] = Mouse.GetPopulation();
                 }
                 using (Variable.If(day > 0))
                 {

@@ -6,14 +6,14 @@ namespace catandmouse
 {
     public class BaseAnimalModel
     {
-        public Variable<double> Population;
-        public Variable<Gaussian> BornYoungPerLitterPrior;
-        public Variable<Gaussian> BirthratePrior;
-        public Variable<Gaussian> DeathratePrior;
+        private Variable<double> Population;
+        private Variable<Gaussian> BornYoungPerLitterPrior;
+        private Variable<Gaussian> BirthratePrior;
+        private Variable<Gaussian> DeathratePrior;
 
-        public Variable<double> BornYoungPerLitter;
-        public Variable<double> Birthrate;
-        public Variable<double> Deathrate;
+        private Variable<double> BornYoungPerLitter;
+        private Variable<double> Birthrate;
+        private Variable<double> Deathrate;
 
         public virtual void CreateModel()
         {
@@ -34,19 +34,28 @@ namespace catandmouse
             DeathratePrior.ObservedValue = priors.DeathrateDist;
         }
 
-        public void SetNewPopulation(double NewPopulation){
+        public void SetNewPopulation(double NewPopulation)
+        {
             Population.ObservedValue = NewPopulation;
         }
 
-        public Variable<double> GetNaturalDeath(){
+        public Variable<double> GetPopulation()
+        {
+            return Population;
+        }
+
+        public Variable<double> GetNaturalDeath()
+        {
             return Deathrate * Population;
         }
 
-        public Variable<double> GetFemine(){
+        public Variable<double> GetFemine()
+        {
             return Population * 0.5;
         }
 
-        public Variable<double> GetBornYoung(){
+        public Variable<double> GetBornYoung()
+        {
             return BornYoungPerLitter * Birthrate * GetFemine();
         }
 

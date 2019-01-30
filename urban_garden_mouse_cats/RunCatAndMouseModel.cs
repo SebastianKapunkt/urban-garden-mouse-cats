@@ -108,8 +108,8 @@ namespace catandmouse
 
             Console.WriteLine(
                 "initial Mouse Population: {0:f2}, initial Cat Population: {1:f2}",
-                engine.Infer<Gaussian>(Model.Mouse.Population).GetMean(),
-                engine.Infer<Gaussian>(Model.Cat.Population).GetMean()
+                engine.Infer<Gaussian>(Model.Mouse.GetPopulation()).GetMean(),
+                engine.Infer<Gaussian>(Model.Cat.GetPopulation()).GetMean()
             );
             Console.WriteLine(
                 "Mouse NaturalDeath Mean: {0:f10}, Standard Deviation: {1:f10}",
@@ -165,7 +165,7 @@ namespace catandmouse
                     new Gaussian(5.5, 2.22),
                     new Gaussian(0.0195, 0.000004),
                     new Gaussian(0.001141552511, 0.0000000225)
-                );
+            );
             BaseAnimalModel.AnimalModelData CatPriors = new BaseAnimalModel.AnimalModelData(
                 new Gaussian(5.5, 4),
                 new Gaussian(0.004102103451, 0.00000144),

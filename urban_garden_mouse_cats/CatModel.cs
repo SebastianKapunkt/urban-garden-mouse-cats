@@ -7,18 +7,13 @@ namespace catandmouse
 
     public class CatModel : BaseAnimalModel
     {
-        public Variable<double> Catchrate;
-        public Variable<double> FoodNeeds;
-
-        public Variable<Gaussian> CatchratePrior;
-        public Variable<Gaussian> FoodNeedsPrior;
+        private Variable<double> Catchrate;
+        private Variable<Gaussian> CatchratePrior;
 
         public override void CreateModel()
         {
             base.CreateModel();
-
             CatchratePrior = Variable.New<Gaussian>();
-
             Catchrate = Variable.Random<double, Gaussian>(CatchratePrior);
         }
 
@@ -30,7 +25,7 @@ namespace catandmouse
 
         public Variable<double> GetCatchableMouse()
         {
-            return Catchrate * Population;
+            return Catchrate * base.GetPopulation();
         }
     }
 }
